@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="JAX-WS-KINO" basedir=".">
+<!-- set global properties for this build -->
+<property name="src" location="src"/>
+<property name="jaxws.home" location="D:\jaxws-ri"/>
+<property name="preprocess" location="presrc" />
+<property name="catalinahome" value="D:\Tomcat\apache-tomcat-6.0.32"/>
+<property name="build.home" value="${basedir}/build"/>
+<property name="war.home" value="war"/>
+<property name="build.classes.home" value="${build.home}/classes"/>
+
+<path id="jaxws.classpath">
+	<fileset dir="${jaxws.home}\lib" includes="jaxws-tools.jar" />
+</path>
+
+<target name="apt" >
+	<taskdef name="apt" classname="com.sun.tools.ws.ant.Apt">
+		<classpath refid="jaxws.classpath"/>
+	</taskdef>
+	
+	<apt 	
+			destdir="${build.classes.home}"
+			verbose="false"
+			sourcepath="${src}\serve_kino">
+			<classpath>
+				
+			</classpath>
+			<source dir="${src}\serve_kino" />
+	</apt>
+</target>
+
+
+
+
+<target name="wsimport" >
+	<taskdef name="wsimport" classname="com.sun.tools.ws.ant.WsImport">
+		<classpath refid="jaxws.classpath"/>
+	</taskdef>
+
+	<wsimport
+				debug="true"
+				verbose="false"
+				keep="true"
+				destdir="${build.classes.home}"
+				package="client"
+				xendorsed="true"
+				wsdl="http://localhost:8080/JAX-WS-KINO/kino?wsdl">
+	</wsimport>
+</target>
+
+<target name="compile" >
+	<javac 	srcdir="${src}\client"
+			destdir="${build.classes.home}"
+			classpath="${build.classes.home}"
+	/>
+</target>
+
+
+
+<target name="clean" description="clean up" >
+<!-- Delete the ${build} and ${dist} directory trees -->
+<delete dir="${war.home}"/>
+</target>
+<target name="create-war">
+
+<!-- Create the build directory structure used by compile -->
+<mkdir dir="${war.home}"/>
+<war destfile="${war.home}/${ant.project.name}.war" webxml="web.xml">
+<webinf dir="${basedir}" includes="sun-jaxws.xml"/>
+<classes dir="${build.classes.home}"/>
+</war>
+</target>
+<target name="deploy">
+
+<copy file="${war.home}/${ant.project.name}.war"
+todir="${catalinahome}/webapps"/>
+</target>
+</project>
